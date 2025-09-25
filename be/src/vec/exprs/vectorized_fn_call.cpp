@@ -143,6 +143,8 @@ Status VectorizedFnCall::prepare(RuntimeState* state, const RowDescriptor& desc,
                 {.enable_decimal256 = state->enable_decimal256(),
                  .new_version_unix_timestamp = state->query_options().new_version_unix_timestamp},
                 state->be_exec_version());
+        _function = nullptr;
+        std::cout << "function is nullptr" << std::endl;
     }
     if (_function == nullptr) {
         return Status::InternalError("Could not find function {}, arg {} return {} ",
