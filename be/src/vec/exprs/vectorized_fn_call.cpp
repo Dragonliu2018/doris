@@ -146,8 +146,8 @@ Status VectorizedFnCall::prepare(RuntimeState* state, const RowDescriptor& desc,
         if (_fn.name.function_name == "coalesce") {
             _function = nullptr;
         }
-        std::cout << "function: " << _fn.name.function_name << std::endl;
     }
+    std::cout << "function: " << _fn.name.function_name << std::endl;
     if (_function == nullptr) {
         return Status::InternalError("Could not find function {}, arg {} return {} ",
                                      _fn.name.function_name, get_child_type_names(),
