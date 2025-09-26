@@ -22,6 +22,8 @@
 
 #include <glog/logging.h>
 
+#include <cstdio>
+#include <ostream>
 #include <vector>
 
 #include "olap/hll.h"
@@ -200,6 +202,7 @@ public:
     void update_hashes_with_value(uint64_t* __restrict hashes,
                                   const uint8_t* __restrict null_data = nullptr) const override {
         // TODO add hash function
+        std::cout<< "dragon: update_hashes_with_value"<< std::endl;
     }
 
     StringRef get_raw_data() const override {
