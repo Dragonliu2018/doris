@@ -55,6 +55,7 @@ inline uint32_t RawValue::zlib_crc32(const void* v, size_t len, const PrimitiveT
     switch (type) {
     case TYPE_VARCHAR:
     case TYPE_HLL:
+    case TYPE_BITMAP:
     case TYPE_STRING:
     case TYPE_CHAR: {
         return HashUtil::zlib_crc_hash(v, (uint32_t)len, seed);
