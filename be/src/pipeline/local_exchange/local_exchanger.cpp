@@ -114,6 +114,7 @@ bool Exchanger<BlockType>::_dequeue_data(BlockType& block, bool* eos, vectorized
 
 Status ShuffleExchanger::sink(RuntimeState* state, vectorized::Block* in_block, bool eos,
                               Profile&& profile, SinkInfo&& sink_info) {
+    std::cout << "[dragon] ShuffleExchanger::sink" << std::endl;
     if (in_block->empty()) {
         return Status::OK();
     }

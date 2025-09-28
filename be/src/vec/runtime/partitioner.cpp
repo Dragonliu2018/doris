@@ -29,6 +29,7 @@ namespace doris::vectorized {
 template <typename ChannelIds>
 Status Crc32HashPartitioner<ChannelIds>::do_partitioning(RuntimeState* state, Block* block,
                                                          bool eos, bool* already_sent) const {
+    std::cout<< "[dragon] do_partitioning" << std::endl;
     size_t rows = block->rows();
 
     if (rows > 0) {
@@ -61,6 +62,7 @@ Status Crc32HashPartitioner<ChannelIds>::do_partitioning(RuntimeState* state, Bl
 template <typename ChannelIds>
 void Crc32HashPartitioner<ChannelIds>::_do_hash(const ColumnPtr& column,
                                                 uint32_t* __restrict result, int idx) const {
+    std::cout<< "[dragon] _do_hash" << column->get_name() << std::endl;
     column->update_crcs_with_value(
             result, _partition_expr_ctxs[idx]->root()->data_type()->get_primitive_type(),
             cast_set<uint32_t>(column->size()));
