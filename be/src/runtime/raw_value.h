@@ -58,6 +58,7 @@ inline uint32_t RawValue::zlib_crc32(const void* v, size_t len, const PrimitiveT
     case TYPE_BITMAP:
     case TYPE_STRING:
     case TYPE_CHAR: {
+        std::cout<< "[dragon] bitmap column" << std::endl;
         return HashUtil::zlib_crc_hash(v, (uint32_t)len, seed);
     }
 
