@@ -136,15 +136,19 @@ public class AIResource extends Resource {
         String lowerCaseType = type.name().toLowerCase();
         result.addRow(Lists.newArrayList(name, lowerCaseType, "id", String.valueOf(id)));
         readLock();
-        result.addRow(Lists.newArrayList(name, lowerCaseType, "version", String.valueOf(version)));
-        for (Map.Entry<String, String> entry : properties.entrySet()) {
-            if (entry.getKey().equals(AIProperties.API_KEY)) {
-                result.addRow(Lists.newArrayList(name, lowerCaseType, entry.getKey(), "******"));
-            } else {
-                result.addRow(Lists.newArrayList(name, lowerCaseType, entry.getKey(), entry.getValue()));
+        try {
+            result.addRow(Lists.newArrayList("", "", "version", String.valueOf(version)));
+            for (Map.Entry<String, String> entry : properties.entrySet()) {
+                if (entry.getKey().equals(AIProperties.API_KEY)) {
+                    result.addRow(Lists.newArrayList("", "", entry.getKey(), "******"));
+                } else {
+                    result.addRow(Lists.newArrayList("", "", entry.getKey(), entry.getValue()));
+                }
             }
+            result.addRow(Lists.newArrayList("-", "-", "-", "-"));
+        } finally {
+            readUnlock();
         }
-        readUnlock();
     }
 
     public TAIResource toThrift() throws NumberFormatException {

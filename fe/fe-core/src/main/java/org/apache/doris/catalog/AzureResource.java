@@ -200,22 +200,26 @@ public class AzureResource extends Resource {
         String lowerCaseType = type.name().toLowerCase();
         result.addRow(Lists.newArrayList(name, lowerCaseType, "id", String.valueOf(id)));
         readLock();
-        result.addRow(Lists.newArrayList(name, lowerCaseType, "version", String.valueOf(version)));
-        for (Map.Entry<String, String> entry : this.properties.entrySet()) {
-            if (PrintableMap.HIDDEN_KEY.contains(entry.getKey())) {
-                continue;
+        try {
+            result.addRow(Lists.newArrayList("", "", "version", String.valueOf(version)));
+            for (Map.Entry<String, String> entry : this.properties.entrySet()) {
+                if (PrintableMap.HIDDEN_KEY.contains(entry.getKey())) {
+                    continue;
+                }
+                // it's dangerous to show password in show odbc resource,
+                // so we use empty string to replace the real password
+                if (entry.getKey().equals(S3Properties.Env.SECRET_KEY)
+                        || entry.getKey().equals(S3Properties.SECRET_KEY)
+                        || entry.getKey().equals(S3Properties.Env.TOKEN)
+                        || entry.getKey().equals(S3Properties.SESSION_TOKEN)) {
+                    result.addRow(Lists.newArrayList("", "", entry.getKey(), "******"));
+                } else {
+                    result.addRow(Lists.newArrayList("", "", entry.getKey(), entry.getValue()));
+                }
             }
-            // it's dangerous to show password in show odbc resource,
-            // so we use empty string to replace the real password
-            if (entry.getKey().equals(S3Properties.Env.SECRET_KEY)
-                    || entry.getKey().equals(S3Properties.SECRET_KEY)
-                    || entry.getKey().equals(S3Properties.Env.TOKEN)
-                    || entry.getKey().equals(S3Properties.SESSION_TOKEN)) {
-                result.addRow(Lists.newArrayList(name, lowerCaseType, entry.getKey(), "******"));
-            } else {
-                result.addRow(Lists.newArrayList(name, lowerCaseType, entry.getKey(), entry.getValue()));
-            }
+            result.addRow(Lists.newArrayList("-", "-", "-", "-"));
+        } finally {
+            readUnlock();
         }
-        readUnlock();
     }
 }

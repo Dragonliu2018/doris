@@ -238,14 +238,22 @@ public class JdbcResource extends Resource {
     @Override
     protected void getProcNodeData(BaseProcResult result) {
         String lowerCaseType = type.name().toLowerCase();
-        for (Map.Entry<String, String> entry : configs.entrySet()) {
-            // it's dangerous to show password in show jdbc resource
-            // so we use empty string to replace the real password
-            if (entry.getKey().equals(PASSWORD)) {
-                result.addRow(Lists.newArrayList(name, lowerCaseType, entry.getKey(), ""));
-            } else {
-                result.addRow(Lists.newArrayList(name, lowerCaseType, entry.getKey(), entry.getValue()));
+        result.addRow(Lists.newArrayList(name, lowerCaseType, "id", String.valueOf(id)));
+        readLock();
+        try {
+            result.addRow(Lists.newArrayList("", "", "version", String.valueOf(version)));
+            for (Map.Entry<String, String> entry : configs.entrySet()) {
+                // it's dangerous to show password in show jdbc resource
+                // so we use empty string to replace the real password
+                if (entry.getKey().equals(PASSWORD)) {
+                    result.addRow(Lists.newArrayList("", "", entry.getKey(), ""));
+                } else {
+                    result.addRow(Lists.newArrayList("", "", entry.getKey(), entry.getValue()));
+                }
             }
+            result.addRow(Lists.newArrayList("-", "-", "-", "-"));
+        } finally {
+            readUnlock();
         }
     }
 

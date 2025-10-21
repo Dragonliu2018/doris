@@ -173,8 +173,16 @@ public class EsResource extends Resource {
     @Override
     protected void getProcNodeData(BaseProcResult result) {
         String lowerCaseType = type.name().toLowerCase();
-        for (Map.Entry<String, String> entry : processCompatibleProperties(properties).entrySet()) {
-            result.addRow(Lists.newArrayList(name, lowerCaseType, entry.getKey(), entry.getValue()));
+        result.addRow(Lists.newArrayList(name, lowerCaseType, "id", String.valueOf(id)));
+        readLock();
+        try {
+            result.addRow(Lists.newArrayList("", "", "version", String.valueOf(version)));
+            for (Map.Entry<String, String> entry : processCompatibleProperties(properties).entrySet()) {
+                result.addRow(Lists.newArrayList("", "", entry.getKey(), entry.getValue()));
+            }
+            result.addRow(Lists.newArrayList("-", "-", "-", "-"));
+        } finally {
+            readUnlock();
         }
     }
 }

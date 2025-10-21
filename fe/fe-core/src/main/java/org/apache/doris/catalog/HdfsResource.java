@@ -91,8 +91,23 @@ public class HdfsResource extends Resource {
     @Override
     protected void getProcNodeData(BaseProcResult result) {
         String lowerCaseType = type.name().toLowerCase();
-        for (Map.Entry<String, String> entry : properties.entrySet()) {
-            result.addRow(Lists.newArrayList(name, lowerCaseType, entry.getKey(), entry.getValue()));
+
+        // 第一行：显示资源基本信息（Name 和 ResourceType 只在这一行显示）
+        result.addRow(Lists.newArrayList(name, lowerCaseType, "id", String.valueOf(id)));
+
+        readLock();
+        try {
+            // 后续行：Name 和 ResourceType 留空，只显示 Item 和 Value
+            result.addRow(Lists.newArrayList("", "", "version", String.valueOf(version)));
+
+            for (Map.Entry<String, String> entry : properties.entrySet()) {
+                result.addRow(Lists.newArrayList("", "", entry.getKey(), entry.getValue()));
+            }
+
+            // 添加分隔线
+            result.addRow(Lists.newArrayList("-", "-", "-", "-"));
+        } finally {
+            readUnlock();
         }
     }
 
