@@ -28,6 +28,9 @@ import org.apache.doris.system.Backend;
 import org.apache.doris.thrift.TNetworkAddress;
 import org.apache.doris.thrift.TUnit;
 import org.apache.doris.transaction.TransactionType;
+import org.apache.doris.resource.workloadgroup.WorkloadGroup;
+import org.apache.doris.resource.workloadgroup.WorkloadGroupMgr;
+import org.apache.doris.catalog.Env;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
@@ -406,7 +409,70 @@ public class SummaryProfile {
 
     public void prettyPrint(SafeStringBuilder builder) {
         summaryProfile.prettyPrint(builder, "");
+
+        // Add workload group details after Workload Group field
+        String workloadGroupName = executionSummaryProfile.getInfoString(WORKLOAD_GROUP);
+        if (workloadGroupName != null && !workloadGroupName.equals("N/A")) {
+            addWorkloadGroupDetails(builder, workloadGroupName);
+        }
+
         executionSummaryProfile.prettyPrint(builder, "");
+    }
+
+    private void addWorkloadGroupDetails(SafeStringBuilder builder, String workloadGroupName) {
+        try {
+            ConnectContext ctx = ConnectContext.get();
+            if (ctx != null) {
+                WorkloadGroupMgr wgMgr = Env.getCurrentEnv().getWorkloadGroupMgr();
+                List<WorkloadGroup> workloadGroups = wgMgr.getWorkloadGroup(ctx);
+
+                for (WorkloadGroup wg : workloadGroups) {
+                    if (wg.getName().equals(workloadGroupName)) {
+                        builder.append("   - CPU Share: ").append(wg.getMaxCpuPercent()).append("\n");
+                        builder.append("   - Memory Limit: ").append(wg.getMaxMemoryPercent()).append("%\n");
+                        builder.append("   - Enable Memory Overcommit: ").append("true").append("\n");
+                        builder.append("   - Max Concurrency: ").append(
+                            wg.getProperties().getOrDefault(WorkloadGroup.MAX_CONCURRENCY, String.valueOf(Integer.MAX_VALUE))
+                        ).append("\n");
+                        builder.append("   - Max Queue Size: ").append(
+                            wg.getProperties().getOrDefault(WorkloadGroup.MAX_QUEUE_SIZE, "0")
+                        ).append("\n");
+                        builder.append("   - Queue Timeout: ").append(
+                            wg.getProperties().getOrDefault(WorkloadGroup.QUEUE_TIMEOUT, "0")
+                        ).append("\n");
+                        builder.append("   - CPU Hard Limit: ").append("-1").append("\n");
+                        builder.append("   - Scan Thread Num: ").append(
+                            wg.getProperties().getOrDefault(WorkloadGroup.SCAN_THREAD_NUM, "-1")
+                        ).append("\n");
+                        builder.append("   - Max Remote Scan Thread Num: ").append(
+                            wg.getProperties().getOrDefault(WorkloadGroup.MAX_REMOTE_SCAN_THREAD_NUM, "-1")
+                        ).append("\n");
+                        builder.append("   - Min Remote Scan Thread Num: ").append(
+                            wg.getProperties().getOrDefault(WorkloadGroup.MIN_REMOTE_SCAN_THREAD_NUM, "-1")
+                        ).append("\n");
+                        builder.append("   - Memory Low Watermark: ").append(
+                            wg.getProperties().getOrDefault(WorkloadGroup.MEMORY_LOW_WATERMARK, "75%")
+                        ).append("\n");
+                        builder.append("   - Memory High Watermark: ").append(
+                            wg.getProperties().getOrDefault(WorkloadGroup.MEMORY_HIGH_WATERMARK, "85%")
+                        ).append("\n");
+                        builder.append("   - Tag: ").append(
+                            wg.getProperties().getOrDefault(WorkloadGroup.TAG, "")
+                        ).append("\n");
+                        builder.append("   - Read Bytes Per Second: ").append(
+                            wg.getProperties().getOrDefault(WorkloadGroup.READ_BYTES_PER_SECOND, "-1")
+                        ).append("\n");
+                        builder.append("   - Remote Read Bytes Per Second: ").append(
+                            wg.getProperties().getOrDefault(WorkloadGroup.REMOTE_READ_BYTES_PER_SECOND, "-1")
+                        ).append("\n");
+                        break;
+                    }
+                }
+            }
+        } catch (Exception e) {
+            // If any error occurs, we won't show the workload group details
+            // This maintains backward compatibility
+        }
     }
 
     public Map<String, String> getAsInfoStings() {

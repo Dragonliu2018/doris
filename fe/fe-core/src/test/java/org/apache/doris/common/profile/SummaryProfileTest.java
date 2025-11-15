@@ -20,6 +20,9 @@ package org.apache.doris.common.profile;
 import com.google.common.collect.ImmutableMap;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.apache.doris.common.util.SafeStringBuilder;
+import org.apache.doris.qe.ConnectContext;
+import org.mockito.Mockito;
 
 public class SummaryProfileTest {
 
@@ -59,5 +62,39 @@ public class SummaryProfileTest {
         Assertions.assertEquals(executionSummary.getInfoString(SummaryProfile.NEREIDS_DISTRIBUTE_TIME), "10ms");
         Assertions.assertEquals(executionSummary.getInfoString(SummaryProfile.SCHEDULE_TIME), "12ms");
         Assertions.assertEquals(executionSummary.getInfoString(SummaryProfile.WAIT_FETCH_RESULT_TIME), "13ms");
+    }
+
+    @Test
+    public void testWorkloadGroupDetailsOutput() {
+        SummaryProfile profile = new SummaryProfile();
+
+        // Mock the context with a workload group
+        ConnectContext mockContext = Mockito.mock(ConnectContext.class);
+        Mockito.when(mockContext.getExecutor()).thenReturn(null);
+
+        // Test the prettyPrint output contains workload group details when workload group is set
+        profile.update(ImmutableMap.of(SummaryProfile.WORKLOAD_GROUP, "test_group"));
+
+        SafeStringBuilder builder = new SafeStringBuilder();
+        profile.prettyPrint(builder);
+
+        String output = builder.toString();
+
+        // Verify that Workload Group field exists
+        Assertions.assertTrue(output.contains("Workload Group: test_group"));
+
+        // Test with N/A workload group (should not show details)
+        SummaryProfile profile2 = new SummaryProfile();
+        profile2.update(ImmutableMap.of(SummaryProfile.WORKLOAD_GROUP, "N/A"));
+
+        SafeStringBuilder builder2 = new SafeStringBuilder();
+        profile2.prettyPrint(builder2);
+
+        String output2 = builder2.toString();
+
+        // Should contain Workload Group: N/A but no additional details
+        Assertions.assertTrue(output2.contains("Workload Group: N/A"));
+        // Should not contain the detailed workload group properties
+        Assertions.assertFalse(output2.contains("CPU Share:"));
     }
 }
