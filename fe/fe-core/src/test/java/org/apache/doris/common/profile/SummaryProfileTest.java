@@ -18,10 +18,13 @@
 package org.apache.doris.common.profile;
 
 import com.google.common.collect.ImmutableMap;
+
 import org.apache.doris.common.util.SafeStringBuilder;
 import org.apache.doris.qe.ConnectContext;
+
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+
 import org.mockito.Mockito;
 
 public class SummaryProfileTest {
