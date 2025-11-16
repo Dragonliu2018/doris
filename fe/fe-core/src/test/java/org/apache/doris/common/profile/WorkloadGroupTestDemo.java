@@ -1,7 +1,8 @@
 package org.apache.doris.common.profile;
 
-import org.apache.doris.common.util.SafeStringBuilder;
 import com.google.common.collect.ImmutableMap;
+
+import org.apache.doris.common.util.SafeStringBuilder;
 
 /**
  * 演示工作负载组详细信息输出格式的示例程序
@@ -13,9 +14,9 @@ public class WorkloadGroupTestDemo {
 
         // 模拟设置工作负载组信息
         profile.update(ImmutableMap.of(
-            SummaryProfile.WORKLOAD_GROUP, "normal",
-            SummaryProfile.PARSE_SQL_TIME, "1ms",
-            SummaryProfile.PLAN_TIME, "78ms"
+                SummaryProfile.WORKLOAD_GROUP, "normal",
+                SummaryProfile.PARSE_SQL_TIME, "1ms",
+                SummaryProfile.PLAN_TIME, "78ms"
         ));
 
         // 生成输出

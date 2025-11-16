@@ -17,6 +17,7 @@
 
 package org.apache.doris.common.profile;
 
+import org.apache.doris.catalog.Env;
 import org.apache.doris.common.Config;
 import org.apache.doris.common.io.Text;
 import org.apache.doris.common.util.SafeStringBuilder;
@@ -24,13 +25,12 @@ import org.apache.doris.common.util.TimeUtils;
 import org.apache.doris.persist.gson.GsonUtils;
 import org.apache.doris.qe.ConnectContext;
 import org.apache.doris.qe.StmtExecutor;
+import org.apache.doris.resource.workloadgroup.WorkloadGroup;
+import org.apache.doris.resource.workloadgroup.WorkloadGroupMgr;
 import org.apache.doris.system.Backend;
 import org.apache.doris.thrift.TNetworkAddress;
 import org.apache.doris.thrift.TUnit;
 import org.apache.doris.transaction.TransactionType;
-import org.apache.doris.resource.workloadgroup.WorkloadGroup;
-import org.apache.doris.resource.workloadgroup.WorkloadGroupMgr;
-import org.apache.doris.catalog.Env;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
@@ -432,7 +432,8 @@ public class SummaryProfile {
                         builder.append("   - Memory Limit: ").append(wg.getMaxMemoryPercent()).append("%\n");
                         builder.append("   - Enable Memory Overcommit: ").append("true").append("\n");
                         builder.append("   - Max Concurrency: ").append(
-                            wg.getProperties().getOrDefault(WorkloadGroup.MAX_CONCURRENCY, String.valueOf(Integer.MAX_VALUE))
+                            wg.getProperties().getOrDefault(WorkloadGroup.MAX_CONCURRENCY,
+                                String.valueOf(Integer.MAX_VALUE))
                         ).append("\n");
                         builder.append("   - Max Queue Size: ").append(
                             wg.getProperties().getOrDefault(WorkloadGroup.MAX_QUEUE_SIZE, "0")
